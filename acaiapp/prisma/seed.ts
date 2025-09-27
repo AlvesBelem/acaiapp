@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { hash } from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -15,7 +15,7 @@ async function main() {
       name: "Camila Souza",
       email: "admin@acai.com",
       password,
-      role: Role.ADMIN,
+      role: "ADMIN",
     },
   });
 
@@ -33,7 +33,7 @@ async function main() {
         name: "Paulo Lima",
         email: "paulo@acai.com",
         password: await hash("senha123", 10),
-        role: Role.USER,
+        role: "USER",
       },
     }),
     prisma.user.create({
@@ -41,7 +41,7 @@ async function main() {
         name: "Ana Pereira",
         email: "ana@acai.com",
         password: await hash("senha123", 10),
-        role: Role.USER,
+        role: "USER",
       },
     }),
   ]);
