@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 
+type ProductRecord = Awaited<ReturnType<typeof prisma.product.findMany>>[number];
+
 export const metadata = {
   title: "Dashboard | Açaí Leads",
 };
@@ -44,7 +46,7 @@ export default async function DashboardPage() {
           </Card>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2">
-            {products.map((product) => (
+            {products.map((product: ProductRecord) => (
               <Card key={product.id} className="flex flex-col border-[#4B006E]/10 bg-white/80">
                 <div className="relative h-48 w-full overflow-hidden rounded-t-2xl">
                   <Image

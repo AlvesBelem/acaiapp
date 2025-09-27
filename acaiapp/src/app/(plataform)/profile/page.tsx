@@ -1,14 +1,12 @@
-import { getServerSession } from "next-auth";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 export const metadata = {
   title: "Meu Perfil | Açaí Leads",
 };
 
 export default async function ProfilePage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   return (
     <div className="grid gap-6 sm:grid-cols-2">

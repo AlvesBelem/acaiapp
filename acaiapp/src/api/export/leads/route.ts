@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-
 import { prisma } from "@/lib/prisma";
 import { arrayToCsv } from "@/lib/csv";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
+
+type LeadWithUser = Awaited<ReturnType<typeof prisma.lead.findMany>>[number];
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session || session.user?.role !== "ADMIN") {
     return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
@@ -17,7 +17,7 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
   });
 
-  const rows = leads.map((lead) => ({
+  const rows = leads.map((lead: LeadWithUser) => ({
     id: lead.id,
     name: lead.name,
     email: lead.email,
@@ -26,7 +26,7 @@ export async function GET() {
     createdAt: lead.createdAt.toISOString(),
   }));
 
-  const headers = ["id", "name", "email", "userId", "userName", "createdAt"] as const;
+  const headers = ["id", "name", "email", "userId", "userName", "createdAt"];
   const csv = arrayToCsv(rows, headers);
 
   return new NextResponse(csv, {

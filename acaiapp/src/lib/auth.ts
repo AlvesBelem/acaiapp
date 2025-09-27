@@ -1,13 +1,13 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { compare } from "bcryptjs";
-import { NextAuthOptions } from "next-auth";
+import NextAuth, { type NextAuthConfig } from "next-auth";
 import type { User as NextAuthUser } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { compare } from "bcryptjs";
 
 import { prisma } from "@/lib/prisma";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
@@ -27,19 +27,22 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        const email = credentials?.email;
+        const password = credentials?.password;
+
+        if (typeof email !== "string" || typeof password !== "string") {
           throw new Error("Email e senha são obrigatórios");
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email },
         });
 
         if (!user || !user.password) {
           throw new Error("Credenciais inválidas");
         }
 
-        const isValid = await compare(credentials.password, user.password);
+        const isValid = await compare(password, user.password);
 
         if (!isValid) {
           throw new Error("Credenciais inválidas");
@@ -129,3 +132,8 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
+
+const { auth, handlers, signIn, signOut } = NextAuth(authOptions);
+
+export { auth, signIn, signOut };
+export const { GET, POST } = handlers;

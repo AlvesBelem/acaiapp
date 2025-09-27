@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-
 import { SignOutButton } from "@/components/platform/sign-out-button";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
@@ -15,7 +13,7 @@ export default async function PlatformLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session) {
     redirect("/auth/login");

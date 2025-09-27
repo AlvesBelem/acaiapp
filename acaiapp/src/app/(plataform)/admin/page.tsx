@@ -2,8 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { getServerSession } from "next-auth";
-
 import { DeleteProductButton } from "@/components/platform/delete-product-button";
 import { ProductForm } from "@/components/platform/product-form";
 import { Button } from "@/components/ui/button";
@@ -24,14 +22,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
+
+type ProductRecord = Awaited<ReturnType<typeof prisma.product.findMany>>[number];
+type UserRecord = Awaited<ReturnType<typeof prisma.user.findMany>>[number];
+type LeadRecord = Awaited<ReturnType<typeof prisma.lead.findMany>>[number];
 
 export const metadata = {
   title: "Administração | Açaí Leads",
 };
 
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session || session.user?.role !== "ADMIN") {
     redirect("/dashboard");
@@ -79,7 +81,7 @@ export default async function AdminPage() {
           <p className="text-sm text-[#4B006E]/70">Edite ou remova conteúdos disponíveis para os usuários.</p>
         </div>
         <div className="grid gap-6 md:grid-cols-2">
-          {products.map((product) => (
+          {products.map((product: ProductRecord) => (
             <Card key={product.id} className="border-[#4B006E]/10 bg-white/80">
               <CardHeader>
                 <CardTitle className="text-lg text-[#4B006E]">{product.title}</CardTitle>
@@ -133,7 +135,7 @@ export default async function AdminPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
+              {users.map((user: UserRecord) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium text-[#4B006E]">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
@@ -165,7 +167,7 @@ export default async function AdminPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {leads.map((lead) => (
+              {leads.map((lead: LeadRecord) => (
                 <TableRow key={lead.id}>
                   <TableCell className="font-medium text-[#4B006E]">{lead.name}</TableCell>
                   <TableCell>{lead.email}</TableCell>
